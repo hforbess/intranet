@@ -1,0 +1,4 @@
+<?php
+require_once '/var/www/intranet/app/Vendor/haml/HamlHelpers.php';
+?><?php /* comment; ?>*/<?php $cakeDescription = __d('cake_dev', 'CakePHP: the rapid development php framework');; ?><!DOCTYPE html>
+<html><head><?php echo $this->Html->charset(); ?><title>hello world</title><?php 	echo $this->Html->meta('icon'); ?><?php echo $this->Html->css('cake.generic'); ?><?php echo $scripts_for_layout;; ?></head></html><div id="container"><div id="header"></div><?php echo $content_for_layout; ?><div id="footer"><?php echo $this->element('sql_dump'); ?></div></div>

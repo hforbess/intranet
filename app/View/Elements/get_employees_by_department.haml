@@ -1,0 +1,8 @@
+%table{:width => '100%' }
+  - foreach ( $employees as $emp ) :
+    %tr
+      %td
+        - echo $this->Html->link(  $emp['Employee']['first_name'] . " ". $emp['Employee']['last_name']  , "/Employees/view/". $emp['Employee']['id'] ) 
+
+  - endforeach
+

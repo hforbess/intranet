@@ -1,0 +1,17 @@
+= $this->Html->script('load_department');
+- foreach ( $departments as $department ) :
+- $id = $department['Department']['id']
+%h2 #{$department['Department']['department_name']}
+%div{:id =>"dept#{$id}"  }
+  :javascript
+      $(function(){
+        loadDepartment(#{$id});
+      
+      });
+      
+- endforeach
+
+
+
+
+

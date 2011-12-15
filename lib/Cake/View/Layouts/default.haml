@@ -1,0 +1,16 @@
+!!!
+%html
+  %head
+    - echo $this->Html->charset()
+    %title hello world
+    -	echo $this->Html->meta('icon')
+    - echo $this->Html->css('cake.generic')
+    - echo $scripts_for_layout;
+#container
+  #header
+	  
+  - echo $content_for_layout
+  #footer
+    - echo $this->element('sql_dump')
+    - echo "ddd"
+

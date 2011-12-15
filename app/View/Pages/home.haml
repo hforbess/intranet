@@ -1,0 +1,23 @@
+:javascript
+  $(function() {
+    $( "#tabs" ).tabs();
+  });
+    
+#tabs
+  %ul
+    %li
+      - echo $this->Html->link( 'Home','#tabs-1') 
+    %li
+      - echo $this->Html->link( 'H/R and forms','#tabs-2') 
+    %li
+      - echo $this->Html->link( 'Benefits', '#tabs-3') 
+    %li
+      - echo $this->Html->link( 'Payroll','#tabs-4') 
+  #tabs-1
+    - echo $this->element('accordion_home')
+  #tabs-2
+    - echo $this->element('accordion_forms')
+  #tabs-3
+    - echo $this->element('accordion_forms')
+  #tabs-4
+    hi

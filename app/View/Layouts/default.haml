@@ -1,0 +1,20 @@
+- $cakeDescription = __d('cake_dev', 'CakePHP: the rapid development php framework');
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+%html
+  %head
+    - echo $this->Html->charset()
+    %title hello world
+    - echo $this->Html->meta('icon')
+    - echo $this->Html->css('main')
+    - echo $this->Html->css('jquery-ui-1.8.7.custom')
+    - echo $this->Html->script('jquery-1.4.4.min')
+    - echo $this->Html->script('jquery-ui-1.8.7.custom.min')
+    - echo $scripts_for_layout;
+#container
+  #header
+    - echo $this->Html->image('logo.jpg',array('id' => 'logo'))  
+    %h1{:style => 'display:inline;float:left'} Intranet	  
+  - echo $content_for_layout
+  #footer
+    - echo $this->element('sql_dump')
+
