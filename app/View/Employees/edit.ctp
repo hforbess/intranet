@@ -16,7 +16,6 @@
      <?PHP echo $employee->last_name ?>
      </h2>
      </td>
-  
   </tr>
  </table>
 
@@ -76,12 +75,11 @@
      </div>
      </td>
     <td>
-      <?PHP echo $employee->pay_periods['current_start']->format("m-d-Y") ?>
+      <?PHP echo $employee->pay_periods['week_one_start']->format("m-d-Y") ?>
      </td>
     <td>
-    <?PHP echo $employee->pay_periods['current_end']->format("m-d-Y") ?>
+    <?PHP echo $employee->pay_periods['week_two_end']->format("m-d-Y") ?>
      </td>
-
   </tr>
 </table>
 
@@ -100,23 +98,79 @@
        Approved
        </td>
    </tr>
-    <?php foreach($employee->times as $punch):?>
+   <script>
+    var id_arr = new Array();
+   </script>
+    <?php foreach($employee->times as  $week):?>
+          <?php foreach( $week as $punch ) : ?>
+
+    <script>
+     id_arr.push(<?php echo $punch['TimeClock']['id']?> );
+    </script>
     <tr>
-        <td>
-        <?php echo date("m-d-Y h:i A",strtotime($punch['TimeClock']['punch_in'] ))?> 
+        <td><?php echo $punch['TimeClock']['id']?>
+        <input id="punch-in<?php echo $punch['TimeClock']['id']?>" type="text" value="<?php echo date("m-d-Y h:i A",strtotime($punch['TimeClock']['punch_in'] ))?>" />
+        <script>
+        $(function(){
+             $("#punch-in<?php echo $punch['TimeClock']['id']?>").datetimepicker({
+                 ampm:true,
+                 onClose:function(dateText,inst)
+                 {
+                  updateTimes(inst.id, dateText);
+                  },
+                 dateFormat: 'mm-dd-yy'
+                });
+            })
+        </script>
         </td>
-        <td>
-           <?php echo date("m-d-Y h:i A",strtotime($punch['TimeClock']['punch_out']))?>
+        <td><?php echo $punch['TimeClock']['id']?>
+        <input id="punch-out<?php echo $punch['TimeClock']['id']?>" type="text" value="<?php echo date("m-d-Y h:i A",strtotime($punch['TimeClock']['punch_out'] ))?>" />
+        <script>
+        $(function(){
+             $("#punch-out<?php echo $punch['TimeClock']['id']?>").datetimepicker({
+                  ampm:true,
+                  onClose:function(dateText,inst)
+                  {
+                   updateTimes(inst.id, dateText);
+                   },
+                  dateFormat: 'mm-dd-yy'
+                 });
+            })
+        </script>
         </td>
          <td>
            <?php $arr  =  $employee->secondsToTime(  strtotime( date ($punch['TimeClock']['punch_out'] ) ) - strtotime ( date ( $punch['TimeClock']['punch_in'] ) ))?>
-           <?php echo $arr["h"].".". $arr["m"]?>
+           <div id="punch_total<?php echo $punch['TimeClock']['id']?>" >
+              <?php echo $arr["h"].".". $arr["m"]?>
+           </div>
         </td>
         <td>
-            <?php echo $punch['TimeClock']['approved'] == 1 ? "Yes" : "No"?>
+            <div id="approve_status<?php echo $punch['TimeClock']['id'] ?>" style="display:inline;">   <?php echo $punch['TimeClock']['approved'] == 1 ? "Yes" : "No"?></div> 
+           <script>
+            $(function(){
+               $("#approve_status<?php echo $punch['TimeClock']['id'] ?>").css("color","<?php echo $punch['TimeClock']['approved'] == 1 ? "green" : "red"?>" );
+                })
+           </script>
+            <input type="checkbox" id="approved<?php echo $punch['TimeClock']['id'] ?>" style="display:inline;" <?php echo $punch['TimeClock']['approved'] == 1 ? "checked='checked'" : ""?> />
+   
+            <script>
+            $("#approved<?php echo $punch['TimeClock']['id'] ?>").click (function ()
+            		{
+            		var thisCheck = $(this);
+            		if (thisCheck.is (':checked'))
+            		{
+            		  approve(<?php echo $punch['TimeClock']['id'] ?>)
+            		}
+            		else
+            		{
+            		  disApprove(<?php echo $punch['TimeClock']['id'] ?>)
+                	}
+            		});
+            </script>
         </td>
     </tr>
-    <?php endforeach;?>
+       <?php endforeach?>
+    <?php endforeach?>
     <tr>
     <td>
      <div class="bold">
@@ -124,8 +178,10 @@
      </div>
     </td>
         <td>
-     <?PHP $arr =  $employee->secondsToTime( $employee->total_hours ) ?>
-     <?php echo $arr["h"].".". $arr["m"]?>
+     <?PHP $arr =  $employee->secondsToTime( $employee->total_hours['week_one'] + $employee->total_hours['week_two']  ) ?>
+         <div id="total">
+         <?php echo $arr["h"].".". $arr["m"]?>
+         </div>
      </td>
     <td>
      <div class="bold">
@@ -133,9 +189,74 @@
      </div>
     </td>
         <td>
-     <?PHP $arr =  $employee->secondsToTime( $employee->over_time ) ?>
-     <?php echo $arr["h"].".". $arr["m"]?>
+     <?PHP $arr =  @$employee->secondsToTime( $employee->over_time['week_one'] + $employee->over_time['week_two'] ) ?>
+        <div id="overtime">  
+        <?php echo $arr["h"].".". $arr["m"]?>
+         </div>
      </td>     
     </tr>
 </table>
   </div>
+  <script>
+   function approve(id)
+   {
+	   $.ajax({
+		   url: "/TimeClocks/approve/" +id ,
+		   type:"post",
+		   success: function(){
+		     $("#approve_status"+id).html('Yes');
+		     $("#approve_status"+id).css('color','green');
+		     $().toastmessage('showSuccessToast', "Time Approved");
+		   }
+		 });
+   }
+   function disApprove(id)
+   {
+	   $.ajax({
+		   url: "/TimeClocks/disapprove/" +id ,
+		   type:"post",
+		   success: function(){
+		   $("#approve_status"+id).html('No');
+		   $("#approve_status"+id).css('color','red');
+		   $().toastmessage('showSuccessToast', "Time Disapproved");
+		   }
+		 });
+   }
+   function updateTimes(id,my_time)
+   {
+
+	   $.ajax({
+		   url: "/TimeClocks/updateTimes/" +id +"?my_time="+my_time ,
+		   type:"post",
+		   dataType: 'json',
+		   success: function(data){
+		   
+           $("#punch_total" + data.id).text(data.total_time);
+           $("#punch_total" + data.id).effect("highlight",{"color":"green"}, 3000);
+
+           var total = 0;
+		   for( x = 0; x < id_arr.length; x++)
+		   {
+            total += parseFloat ( $("#punch_total"+ id_arr[x]).text() );
+          
+		   }
+		   console.debug( id_arr);
+		   var overtime = 0;
+		   if ( total > 80 )
+		   {
+           overtime = total - 80;
+            total = 80;
+		   }
+          
+           overtime = overtime.toFixed(2);
+           total = total.toFixed(2);
+           $("#total").html(total);
+           $("#total").effect("highlight", {"color":"green"}, 3000);
+           $("#overtime").html( overtime );
+           $("#overtime").effect("highlight", {"color":"green"}, 3000);
+		   $().toastmessage('showSuccessToast', "Time updated successfully");
+		   }
+		 });
+   }
+   
+  </script>

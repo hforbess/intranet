@@ -46,43 +46,57 @@ class MyEmployee
     public function setPayPeriod($pay_periods)
     {
     	$this->pay_periods = $pay_periods;
+    	
     }
     
     public function setTimes($times)
     {
     	$this->times = $times;
+
     	$unapproved = 0;
     	$total_hours = 0;
     	$total_per_punch = 0;
-
-    	for ( $x = 0; $x < count($times); $x++)
-    	{
-         ($times[$x]['TimeClock']['approved']) == 0 ?  $unapproved++ : "";
-    	 $punch_in = new DateTime($times[$x]['TimeClock']['punch_in']);
-    	 $punch_out = new DateTime($times[$x]['TimeClock']['punch_out']);
-    	 $punch_in_unix = mktime( $punch_in->format("H"),$punch_in->format("i"),0,$punch_in->format("n"),$punch_in->format("j"),$punch_in->format("y"));
-    	 $punch_out_unix = mktime( $punch_out->format("H"),$punch_out->format("i"),0,$punch_out->format("n"),$punch_out->format("j"),$punch_out->format("y"));
-    	 $total_per_punch_seconds = $punch_out_unix - $punch_in_unix;
-    	 $times[$x]['TimeClock']['punch_total']  = $this->secondsToTime($total_per_punch_seconds);
-         $total_hours += $total_per_punch_seconds;
-        
-    	}
+    	$forty_hours_in_seconds = 144000;
+    	$index = 0;
     	
-	    $forty_hours_in_seconds = 144000;
-	    $this->over_time = 0;
-	    if ( $total_hours > $forty_hours_in_seconds)
-	    {
+        foreach ($times as $week )
+        {   echo "index $index";
+        	$which_week = $index == 0 ?  'week_one' : 'week_two';
+            $start = $index == 0 ? 1 : 6;
+            $end  = $index == 0 ?  8  : 13; 
+           
+	    	for ( $x = 1; $x  = 6; $x++)
+	    	{
 
-	    	$this->over_time = $total_hours - $forty_hours_in_seconds;
-	        $total_hours = $forty_hours_in_seconds;
-	    	
-	    }
-	
-	    $this->total_hours = $total_hours;	
-	    $this->unapproved_times = $unapproved ;
+	 
+	         ($week[$x]['TimeClock']['approved']) == 0 ?  $unapproved++ : "";
+	    	 $punch_in = new DateTime($week[$x]['TimeClock']['punch_in']);
+	    	 $punch_out = new DateTime($week[$x]['TimeClock']['punch_out']);
+	    	 $punch_in_unix = mktime( $punch_in->format("H"),$punch_in->format("i"),0,$punch_in->format("n"),$punch_in->format("j"),$punch_in->format("y"));
+	    	 $punch_out_unix = mktime( $punch_out->format("H"),$punch_out->format("i"),0,$punch_out->format("n"),$punch_out->format("j"),$punch_out->format("y"));
+	    	 $total_per_punch_seconds = $punch_out_unix - $punch_in_unix;
+	    	 $week[$x]['TimeClock']['punch_total']  = $this->secondsToTime($total_per_punch_seconds);
+	         $total_hours += $total_per_punch_seconds;
+              	echo 'do i get here';
+	    	}
+        	$index++;  
+
+	        $this->over_time = array();
+	        $this->over_time['week_one'] = 0;
+	        $this->over_time['week_two'] = 0;
+		    if ( $total_hours > $forty_hours_in_seconds)
+		    {
+		    	$this->over_time[$which_week] = $total_hours - $forty_hours_in_seconds;
+		        $total_hours = $forty_hours_in_seconds;
+		    }
+		$this->total_hours[$which_week] = $total_hours;	
+		
+	    $this->unapproved_times[$which_week] = $unapproved ;
+
+      }//endforeach
     }
     
-    public function secondsToTime($seconds)
+    public static function secondsToTime($seconds)
      {
 	// extract hours
 	$hours = floor($seconds / (60 * 60));

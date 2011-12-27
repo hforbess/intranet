@@ -1,6 +1,7 @@
 <?php
 App::uses('AppController', 'Controller');
 App::import('Vendor', 'MyEmployee');
+App::import('Vendor', 'Day');
 
 
 /**
@@ -12,9 +13,7 @@ class EmployeesController extends AppController {
 	public $helpers = array('Html', 'Form', 'Hours');
 	
     var $uses = array('Department','Employee','TimeClock','DebugKit' );
-
-
-
+    
 	public function index() {
 
 		$departments = $this->Department->find('all',array('order' => array('Department.department_id ASC')));
@@ -26,13 +25,21 @@ class EmployeesController extends AppController {
 
        $emp =  $this->Employee->find( 'first',array( 'conditions' => array('Employee.id' => $id )));  
        $temp  = new MyEmployee($emp);
-       $pay_periods = $this->getPayPeriods();
-       $temp->setPayPeriod($pay_periods);
+       $temp->setPayPeriod( $this->getPayPeriods() );
        $temp->setTimes($this->getHours($pay_periods['current_start'], $pay_periods['current_end'], $temp->id));
        $this->set('employee',$temp);
 
 	}
-	
+	public function edit( $id = null ) {
+
+       $emp =  $this->Employee->find( 'first',array( 'conditions' => array('Employee.id' => $id )));  
+       $temp  = new MyEmployee($emp);
+       $pay_periods = $this->getPayPeriods();
+       $temp->setPayPeriod($pay_periods);
+       $temp->setTimes($this->getHours($pay_periods['week_one_start'], $pay_periods['week_one_end'],$pay_periods['week_two_start'], $pay_periods['week_two_end'], $temp->id));
+       $this->set('employee',$temp);
+
+	}	
    public function getEmployeesByDepartment( $dept = null )
    {
       $pay_periods = $this->getPayPeriods();
@@ -42,9 +49,8 @@ class EmployeesController extends AppController {
       // I made my own employee class. I hate those arrays.
        $temp  = new MyEmployee($emp);
        $temp->setPayPeriod($pay_periods);
-       $temp->setTimes($this->getHours($pay_periods['current_start'], $pay_periods['current_end'], $temp->id));
+       $temp->setTimes($this->getHours($pay_periods['week_one_start'], $pay_periods['week_two_end'], $pay_periods['week_two_start'],  $pay_periods['week_two_end'],$temp->id));
        $emp_arr[] = $temp;
-      
       }
       $this->set('my_employees',$emp_arr); 
      
@@ -61,22 +67,49 @@ class EmployeesController extends AppController {
       while(  $known_pay_period_end < $today )
       {
        $known_pay_period_end->modify('+ 14 days');
+  
       }
-      $current_end = clone $known_pay_period_end;
-      $current_start = clone $known_pay_period_end->modify('- 14 days');
-      $prev_start = clone $current_start->modify('- 14 days');
-      $prev_end = clone $current_end->modify('- 14 days');
-      return $pay_periods = array( 'current_start' => $current_start,'current_end' => $current_end, 'prev_start' => $prev_start, 'prev_end' => $prev_end);
-
+      $current_end = new DateTime( '2011-12-24');
+      $current_start = new DateTime( '2011-12-11');
+      //$current_end = clone $known_pay_period_end;
+      //$current_start = clone $known_pay_period_end;
+      $current_start->modify('+ 1 days');
+      $current_start->modify('- 14 days');
+      $week_one_start = clone $current_start;
+      $week_one_end =  clone $current_start; 
+      $week_one_end->modify('+ 7 days');
+      $week_two_start = clone $week_one_end;
+      $week_two_start->modify('+ 1 days');
+      $week_two_end = clone $week_two_start;
+      $week_two_end->modify('+ 5 days');
+      $prev_start = clone $current_start;
+      $prev_end = clone $current_end;
+      $prev_start = clone $prev_start->modify('- 14 days');
+      $prev_end = clone $prev_end->modify('- 14 days');
+      //$pay_periods = array( 'current_start' => $current_start,'current_end' => $current_end, 'prev_start' => $prev_start, 'prev_end' => $prev_end);
+      $pay_periods = array('week_one_start' => $week_one_start, 'week_one_end' => $week_one_end, 'week_two_start' => $week_two_start, 'week_two_end' => $week_two_end);
+      return $pay_periods;
+      
    }
    
-   public function getHours($start, $end, $employee_id)
+   public function getHours($week_one_start, $week_one_end,$week_two_start,$week_two_end, $employee_id)
    {
-   
-     return  $this->TimeClock->find('all',
-     array('conditions' => array('employee_id'=> $employee_id, 
-               'punch_in >=' => $start->format('Y-m-d'),
-               'punch_in <=' => $end->format('Y-m-d')),
-           'order' => array('punch_in ASC')));
+
+   	$week_one_hours[]  = new Day( $week_one_start, $employee_id );
+    for ($x = 2; $x <= 7; $x++ )
+    {
+
+     $week_one_hours[]  = new Day ( $week_one_start->modify("+ 1 days"), $employee_id );
+    
+    } 
+    $week_two_hours[]  = new Day( $week_one_start, $employee_id );
+    for ($x = 9; $x <= 14; $x++ )
+    {
+     $week_two_hours[]  = new Day ( $week_two_start->modify("+ 1 days"), $employee_id );
+
+    } 
+  
+     return $hours = array( 'week_one_hours' => $week_one_hours, 'week_two_hours' => $week_two_hours);
+
    }
 }

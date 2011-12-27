@@ -5,7 +5,7 @@
 <div id="dept<?PHP echo $id ?>" ></div>
 <script>
       $(function(){
-        loadDepartment(<?PHP echo $id ?>);
+    	  $("#dept"+ <?PHP echo $id ?>).load('/Employees/getEmployeesByDepartment/'+<?PHP echo $id ?>)	
       
       });
 </script>      
