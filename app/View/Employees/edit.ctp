@@ -75,16 +75,19 @@
      </div>
      </td>
     <td>
-      <?PHP echo $employee->pay_periods['week_one_start']->format("m-d-Y") ?>
+
      </td>
     <td>
-    <?PHP echo $employee->pay_periods['week_two_end']->format("m-d-Y") ?>
+
      </td>
   </tr>
 </table>
 
 <table cellspacing = '10' width="100%">
    <tr>
+       <td>
+       Date
+       </td>
        <td>
        Clocked in
        </td>
@@ -97,18 +100,25 @@
        <td>
        Approved
        </td>
+       <td>
+       Time per day
+       </td>
+
    </tr>
    <script>
     var id_arr = new Array();
    </script>
-    <?php foreach($employee->times as  $week):?>
-          <?php foreach( $week as $punch ) : ?>
+ <?php for( $x = 0; $x < count( $employee->week_one->my_days_arr); $x++  ) : ?>
 
+     <?php foreach ( $employee->week_one->my_days_arr[$x]->punches as $punch ) : ?>
     <script>
      id_arr.push(<?php echo $punch['TimeClock']['id']?> );
     </script>
     <tr>
-        <td><?php echo $punch['TimeClock']['id']?>
+        <td> 
+            <?php echo $employee->week_one->my_days_arr[$x]->day_of_week?> <?php //echo $employee->week_one->my_days_arr[$x]->my_date->format('m-d-Y') ?>
+         </td>
+         <td>
         <input id="punch-in<?php echo $punch['TimeClock']['id']?>" type="text" value="<?php echo date("m-d-Y h:i A",strtotime($punch['TimeClock']['punch_in'] ))?>" />
         <script>
         $(function(){
@@ -123,7 +133,7 @@
             })
         </script>
         </td>
-        <td><?php echo $punch['TimeClock']['id']?>
+        <td>
         <input id="punch-out<?php echo $punch['TimeClock']['id']?>" type="text" value="<?php echo date("m-d-Y h:i A",strtotime($punch['TimeClock']['punch_out'] ))?>" />
         <script>
         $(function(){
@@ -144,6 +154,7 @@
               <?php echo $arr["h"].".". $arr["m"]?>
            </div>
         </td>
+
         <td>
             <div id="approve_status<?php echo $punch['TimeClock']['id'] ?>" style="display:inline;">   <?php echo $punch['TimeClock']['approved'] == 1 ? "Yes" : "No"?></div> 
            <script>
@@ -168,9 +179,13 @@
             		});
             </script>
         </td>
+        <td>
+        <?php echo $employee->week_one->my_days_arr[$x]->daily_hours?> 
+        </td>
     </tr>
-       <?php endforeach?>
-    <?php endforeach?>
+       <?php endforeach ?>
+       <?php endfor?>
+
     <tr>
     <td>
      <div class="bold">
@@ -178,7 +193,7 @@
      </div>
     </td>
         <td>
-     <?PHP $arr =  $employee->secondsToTime( $employee->total_hours['week_one'] + $employee->total_hours['week_two']  ) ?>
+     <?PHP $arr =  $employee->secondsToTime( $employee->week_one->daily_seconds + $employee->week_two->daily_seconds  ) ?>
          <div id="total">
          <?php echo $arr["h"].".". $arr["m"]?>
          </div>
@@ -189,9 +204,9 @@
      </div>
     </td>
         <td>
-     <?PHP $arr =  @$employee->secondsToTime( $employee->over_time['week_one'] + $employee->over_time['week_two'] ) ?>
+     <?PHP //$arr =  @$employee->secondsToTime( $employee->over_time['week_one'] + $employee->over_time['week_two'] ) ?>
         <div id="overtime">  
-        <?php echo $arr["h"].".". $arr["m"]?>
+        <?php //echo $arr["h"].".". $arr["m"]?>
          </div>
      </td>     
     </tr>
