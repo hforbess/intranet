@@ -11,6 +11,7 @@
     <?PHP echo $this->Html->script('jquery.toastmessage.js') ?>
     <?PHP echo $this->Html->script('datetime_picker.js') ?>
     <?PHP echo $scripts_for_layout; ?>
+
   </head>
 
     <body>

@@ -19,7 +19,7 @@
   </tr>
  </table>
 
-<table>
+<table class="">
    <tr>
     <td>
     <div class="bold">
@@ -67,8 +67,8 @@
     </td>
 </tr>
 </table>
- <table>
-     <tr>
+<table>
+  <tr>
     <td>
     <div class="bold">
       Pay period
@@ -76,7 +76,7 @@
      </td>
     <td>
 
-     </td>
+    </td>
     <td>
 
      </td>
@@ -84,9 +84,9 @@
 </table>
 
 <table cellspacing = '10' width="100%">
-   <tr>
+
        <td>
-       Date
+       Date  
        </td>
        <td>
        Clocked in
@@ -108,84 +108,142 @@
    <script>
     var id_arr = new Array();
    </script>
- <?php for( $x = 0; $x < count( $employee->week_one->my_days_arr); $x++  ) : ?>
+<?php $my_week = 1 ?>
 
-     <?php foreach ( $employee->week_one->my_days_arr[$x]->punches as $punch ) : ?>
-    <script>
-     id_arr.push(<?php echo $punch['TimeClock']['id']?> );
-    </script>
+<?php foreach ( $employee->my_weeks as $week ) :?>
+<tr>
+    <td colspan="6">
+    <?php echo "WEEK ". $my_week?>
+    </td>
+</tr>
+
+ <?php for( $x = 0; $x < count( $week->my_days_arr); $x++  ) : ?>
+     <?php $len = count( $week->my_days_arr[$x]->punches )?>
+     <?php for( $y = 0; $y < count( $week->my_days_arr[$x]->punches ); $y++ ) : ?>
     <tr>
-        <td> 
-            <?php echo $employee->week_one->my_days_arr[$x]->day_of_week?> <?php //echo $employee->week_one->my_days_arr[$x]->my_date->format('m-d-Y') ?>
+        <td>     
+            <?php echo $week->my_days_arr[$x]->day_of_week?> <?php //echo $week->my_days_arr[$x]->my_date->format('m-d-Y') ?>
          </td>
          <td>
-        <input id="punch-in<?php echo $punch['TimeClock']['id']?>" type="text" value="<?php echo date("m-d-Y h:i A",strtotime($punch['TimeClock']['punch_in'] ))?>" />
+        <input id="punch-in<?php echo $week->my_days_arr[$x]->punches[$y]['TimeClock']['id']?>week-<?php echo $my_week?>-<?php echo $x?>" type="text" value="<?php echo date("m-d-Y h:i a",strtotime($week->my_days_arr[$x]->punches[$y]['TimeClock']['punch_in'] ))?>" />
         <script>
         $(function(){
-             $("#punch-in<?php echo $punch['TimeClock']['id']?>").datetimepicker({
+             $("#punch-in<?php echo $week->my_days_arr[$x]->punches[$y]['TimeClock']['id']?>week-<?php echo $my_week?>-<?php echo $x?>").datetimepicker({
                  ampm:true,
+                 dateFormat: 'mm-dd-yy',
                  onClose:function(dateText,inst)
                  {
                   updateTimes(inst.id, dateText);
-                  },
-                 dateFormat: 'mm-dd-yy'
+                  }
+                 
                 });
             })
         </script>
         </td>
         <td>
-        <input id="punch-out<?php echo $punch['TimeClock']['id']?>" type="text" value="<?php echo date("m-d-Y h:i A",strtotime($punch['TimeClock']['punch_out'] ))?>" />
+        <input id="punch-out<?php echo $week->my_days_arr[$x]->punches[$y]['TimeClock']['id']?>week-<?php echo $my_week?>-<?php echo $x?>" type="text" value="<?php echo date("m-d-Y h:i a",strtotime( $week->my_days_arr[$x]->punches[$y]['TimeClock']['punch_out'] ))?>" />
         <script>
         $(function(){
-             $("#punch-out<?php echo $punch['TimeClock']['id']?>").datetimepicker({
+             $("#punch-out<?php echo $week->my_days_arr[$x]->punches[$y]['TimeClock']['id']?>week-<?php echo $my_week?>-<?php echo $x?>").datetimepicker({
                   ampm:true,
+                  dateFormat: 'mm-dd-yy',
                   onClose:function(dateText,inst)
                   {
                    updateTimes(inst.id, dateText);
-                   },
-                  dateFormat: 'mm-dd-yy'
+                   }
+                  
                  });
             })
         </script>
         </td>
          <td>
-           <?php $arr  =  $employee->secondsToTime(  strtotime( date ($punch['TimeClock']['punch_out'] ) ) - strtotime ( date ( $punch['TimeClock']['punch_in'] ) ))?>
-           <div id="punch_total<?php echo $punch['TimeClock']['id']?>" >
+           <?php $arr = $employee->secondsToTime(  strtotime( date ( $week->my_days_arr[$x]->punches[$y]['TimeClock']['punch_out'] ) ) - strtotime ( date ( $week->my_days_arr[$x]->punches[$y]['TimeClock']['punch_in'] ) ))?>
+           <div id="punch_total<?php echo $week->my_days_arr[$x]->punches[$y]['TimeClock']['id']?>" >
               <?php echo $arr["h"].".". $arr["m"]?>
            </div>
         </td>
-
         <td>
-            <div id="approve_status<?php echo $punch['TimeClock']['id'] ?>" style="display:inline;">   <?php echo $punch['TimeClock']['approved'] == 1 ? "Yes" : "No"?></div> 
+            <div id="approve_status<?php echo $week->my_days_arr[$x]->punches[$y]['TimeClock']['id'] ?>" style="display:inline;">   <?php echo  $week->my_days_arr[$x]->punches[$y]['TimeClock']['approved'] == 1 ? "Yes" : "No"?></div> 
            <script>
             $(function(){
-               $("#approve_status<?php echo $punch['TimeClock']['id'] ?>").css("color","<?php echo $punch['TimeClock']['approved'] == 1 ? "green" : "red"?>" );
+               $("#approve_status<?php echo  $week->my_days_arr[$x]->punches[$y]['TimeClock']['id'] ?>").css("color","<?php echo  $week->my_days_arr[$x]->punches[$y]['TimeClock']['approved'] == 1 ? "green" : "red"?>" );
                 })
            </script>
-            <input type="checkbox" id="approved<?php echo $punch['TimeClock']['id'] ?>" style="display:inline;" <?php echo $punch['TimeClock']['approved'] == 1 ? "checked='checked'" : ""?> />
-   
+            <input type="checkbox" id="approved<?php echo $week->my_days_arr[$x]->punches[$y]['TimeClock']['id'] ?>" style="display:inline;" <?php echo  $week->my_days_arr[$x]->punches[$y]['TimeClock']['approved'] == 1 ? "checked='checked'" : ""?> />
+  
             <script>
-            $("#approved<?php echo $punch['TimeClock']['id'] ?>").click (function ()
+            $("#approved<?php echo $week->my_days_arr[$x]->punches[$y]['TimeClock']['id'] ?>").click (function ()
             		{
             		var thisCheck = $(this);
             		if (thisCheck.is (':checked'))
             		{
-            		  approve(<?php echo $punch['TimeClock']['id'] ?>)
+            		  approve(<?php echo $week->my_days_arr[$x]->punches[$y]['TimeClock']['id'] ?>);
             		}
             		else
             		{
-            		  disApprove(<?php echo $punch['TimeClock']['id'] ?>)
+            		  disApprove(<?php echo $week->my_days_arr[$x]->punches[$y]['TimeClock']['id'] ?>);
                 	}
             		});
             </script>
+         </td>
+         <td>
+         </td>
+       </tr>
+
+       <?php if (  $y  == $len - 1  ): ?>
+       <tr style="background-color: #F2E8D5;">
+        <td>
         </td>
         <td>
-        <?php echo $employee->week_one->my_days_arr[$x]->daily_hours?> 
         </td>
-    </tr>
-       <?php endforeach ?>
-       <?php endfor?>
+        <td>
+        </td>
+        <td>
+        </td>
+        <td>
+        </td>
+         <td>
+         <div id="week-<?php echo $my_week?>-<?php echo $x?>" >
+        <?php echo $week->my_days_arr[$x]->daily_hours?> 
+        </div>
+        <input type="hidden" id="day-number<?php echo $x ?>">
+        </td>
+        </tr>
+        <?php endif?>
+       <?php endfor ?>
+      <?php endfor?>
+      <?php if ( $week->total_seconds > 144000 ) : ?>
+      <?php  $week_overtime = $week->total_seconds - 144000 ?>
+      <?php  $week_total =  144000 ?>
+      <?php endif ?>
 
+       <tr style="background-color: #CCFFAA;">
+        <td>
+        </td>
+        <td>
+        </td>
+        <td>
+        Week Over time
+        </td>
+        <td>
+           <div id="week-<?php echo $my_week?>-overtime">
+           <?php $arr =  MyEmployee::secondsToTime($week_overtime)?>
+           <?php echo $arr['h'].".".$arr['m']?>
+           </div>
+        </td>
+        <td>
+        Week Total
+        </td>
+         <td>
+         <div id="week-<?php echo $my_week?>-total" >
+           <?php $arr =  MyEmployee::secondsToTime($week_total)?>
+           <?php echo $arr['h'].".".$arr['m']?>
+        </div>
+
+        </td>
+        </tr>
+     <?php $my_week++?>
+    <?php endforeach?>
     <tr>
     <td>
      <div class="bold">
@@ -193,9 +251,18 @@
      </div>
     </td>
         <td>
-     <?PHP $arr =  $employee->secondsToTime( $employee->week_one->daily_seconds + $employee->week_two->daily_seconds  ) ?>
-         <div id="total">
+      <?php if ( $employee->my_weeks[0]->total_seconds > 144000 ) : ?>
+      <?php  $week_one_overtime = $employee->my_weeks[0]->total_seconds - 144000 ?>
+      <?php  $week_one_total =  144000 ?>
+      <?php endif ?>
+      <?php if ( $employee->my_weeks[1]->total_seconds > 144000 ) : ?>
+      <?php  $week_two_overtime = $employee->my_weeks[1]->total_seconds - 144000 ?>
+      <?php  $week_two_total =  144000 ?>
+      <?php endif ?>
+      <?PHP $arr =  @$employee->secondsToTime( $week_one_total + $week_two_total  ) ?>
+         <div id="two-week-total">
          <?php echo $arr["h"].".". $arr["m"]?>
+        
          </div>
      </td>
     <td>
@@ -204,9 +271,9 @@
      </div>
     </td>
         <td>
-     <?PHP //$arr =  @$employee->secondsToTime( $employee->over_time['week_one'] + $employee->over_time['week_two'] ) ?>
-        <div id="overtime">  
-        <?php //echo $arr["h"].".". $arr["m"]?>
+     <?PHP $arr =  @$employee->secondsToTime( $week_one_overtime + $week_two_overtime ) ?>
+        <div id="two-week-overtime">  
+        <?php echo $arr["h"].".". $arr["m"]?>
          </div>
      </td>     
     </tr>
@@ -237,38 +304,33 @@
 		   }
 		 });
    }
-   function updateTimes(id,my_time)
+
+   function updateTimes(id,my_time,line_number)
    {
 
+       var employee_id = <?php echo $employee->id ?>;
 	   $.ajax({
-		   url: "/TimeClocks/updateTimes/" +id +"?my_time="+my_time ,
+		   url: "/TimeClocks/updateTimes/" +id +"?my_time="+my_time+"&employee_id="+employee_id ,
 		   type:"post",
 		   dataType: 'json',
 		   success: function(data){
 		   
-           $("#punch_total" + data.id).text(data.total_time);
+		   $("#punch_total" + data.id).text(data.punch_time);
            $("#punch_total" + data.id).effect("highlight",{"color":"green"}, 3000);
-
-           var total = 0;
-		   for( x = 0; x < id_arr.length; x++)
-		   {
-            total += parseFloat ( $("#punch_total"+ id_arr[x]).text() );
-          
-		   }
-		   console.debug( id_arr);
-		   var overtime = 0;
-		   if ( total > 80 )
-		   {
-           overtime = total - 80;
-            total = 80;
-		   }
-          
-           overtime = overtime.toFixed(2);
-           total = total.toFixed(2);
-           $("#total").html(total);
-           $("#total").effect("highlight", {"color":"green"}, 3000);
-           $("#overtime").html( overtime );
-           $("#overtime").effect("highlight", {"color":"green"}, 3000);
+           $("#two-week-total").html(data.two_week_total);
+           $("#two-week-total").effect("highlight", {"color":"green"}, 3000);
+           $("#two-week-overtime").html( data.two_week_overtime);
+           $("#two-week-overtime").effect("highlight", {"color":"green"}, 3000);
+           $("#week-1-overtime").html( data.week_one_overtime);
+           $("#week-1-overtime").effect("highlight", {"color":"green"}, 3000);
+           $("#week-1-total").html( data.week_one_total);
+           $("#week-1-total").effect("highlight", {"color":"green"}, 3000);
+           $("#week-2-total").html( data.week_two_total);
+           $("#week-2-total").effect("highlight", {"color":"green"}, 3000);
+           $("#week-2-overtime").html( data.week_two_overtime);
+           $("#week-2-overtime").effect("highlight", {"color":"green"}, 3000);
+           $("#"+data.day).html(data.daily_hours);
+           $("#"+data.day).effect("highlight", {"color":"green"}, 3000);
 		   $().toastmessage('showSuccessToast', "Time updated successfully");
 		   }
 		 });
