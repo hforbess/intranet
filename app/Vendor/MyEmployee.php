@@ -58,7 +58,7 @@ class MyEmployee
            else 
            {
            	
-           		$this->week_two = new Week($week_two_start,$week_two_end, $this->id );
+           	$this->week_two = new Week($week_two_start,$week_two_end, $this->id );
            }
         }//endfor
      $this->my_weeks = array ( $this->week_one, $this->week_two );

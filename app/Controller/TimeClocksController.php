@@ -2,6 +2,7 @@
 App::uses('AppController', 'Controller');
 App::uses('Day', 'Vendor');
 App::uses('MyEmployee', 'Vendor');
+App::uses('Punch', 'Vendor');
 App::uses('Employee', 'Model');
 App::uses('EmployeesController', 'Controller');
 /**
@@ -43,15 +44,15 @@ class TimeClocksController extends AppController {
   
     $date = DateTime::createFromFormat("m-d-Y h:i a",$my_time);
     $date = $date->format("Y-m-d H:i:00");
-     
+    $day = $this->params['url']['day'];
+
      if (preg_match("/punch-out/",$id,$matches) )
      {
        
        $my_arr  = explode('punch-out', $id);
        $id = $my_arr[1];
-       $my_arr = explode('week',$id);
-       $id =  $my_arr[0];
-       $day = "week".$my_arr[1];
+
+
        $this->TimeClock->read(null,$id);
        $this->TimeClock->set('punch_out',$date);
        $this->TimeClock->save();
@@ -62,9 +63,6 @@ class TimeClocksController extends AppController {
 
        $my_arr  = explode('punch-in', $id);
        $id = $my_arr[1];
-       $my_arr = explode('week',$id);
-       $id =  $my_arr[0];
-       $day = "week".$my_arr[1];
 
        $this->TimeClock->read(null,$id);
        $this->TimeClock->set('punch_in',$date);
@@ -118,5 +116,14 @@ class TimeClocksController extends AppController {
     //$this->render("/Layouts/plain");
      
     }   
-  
+   public function getPunch()
+   {
+     $arr = $this->params['pass'];   
+     $id = $arr[0];
+     $week = $arr[1];
+   	 $punch = new Punch($id); 
+   	 $this->set('punch',$punch);
+   	 $this->set('week',$week);
+   	 $this->render('/Elements/punch',false);
+   }
 }
