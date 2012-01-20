@@ -22,11 +22,14 @@ class MyEmployee
 	public $week_one;
 	public $week_two;
 	public $my_weeks;
+	public $two_week_total;
+	public $two_week_over_time;
 
 
     function __construct( $info_arr )
     {
-    	$foreign_table_info_arr = array('user_group','department','unapproved_times','pay_periods','total_hours','over_time','times','week_one','week_two','my_weeks');
+    	$foreign_table_info_arr = array('user_group','department','unapproved_times','pay_periods',
+    	'total_hours','over_time','times','week_one','week_two','my_weeks','two_week_total','two_week_over_time');
     	foreach( $this as $key => $value)
     	{
     		if ( in_array($key, $foreign_table_info_arr))
@@ -61,9 +64,26 @@ class MyEmployee
            	$this->week_two = new Week($week_two_start,$week_two_end, $this->id );
            }
         }//endfor
-     $this->my_weeks = array ( $this->week_one, $this->week_two );
+       $this->my_weeks = array ( $this->week_one, $this->week_two );
+       
+       $arr = MyEmployee::secondsToTime( $this->week_one->total_seconds + $this->week_two->total_seconds );
+       $this->two_week_total = $arr['h'].":".$arr['m'];
+       $arr = MyEmployee::secondsToTime( $this->week_one->total_seconds + $this->week_two->total_seconds );
+       $this->two_week_total = $arr['h'].":".$arr['m'];
+       $arr = MyEmployee::secondsToTime( $this->week_one->over_time_seconds + $this->week_two->over_time_seconds );
+       $this->two_week_over_time = $arr['h'].":".$arr['m'];
+         
     }
-    
+    public function getRemainingSick()
+    {
+    	
+    	
+    } 
+    public function getRemainingVacation()
+    {
+    	
+    	
+    }    
     public static function secondsToTime($seconds)
      {
 	// extract hours
@@ -80,7 +100,7 @@ class MyEmployee
 	// return the final array
 	$obj = array(
 		"h" => (int) $hours,
-		"m" => (int) $minutes,
+		"m" => sprintf("%02d", $minutes),
 		"s" => (int) $seconds,
 	);
 	return $obj;

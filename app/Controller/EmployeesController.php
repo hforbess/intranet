@@ -50,8 +50,8 @@ class EmployeesController extends AppController {
       // I made my own employee class. I hate those arrays.
        $temp  = new MyEmployee($emp);
     
- $temp->setWeeks($pay_periods['week_one_start']->format("Y-m-d"), $pay_periods['week_one_end']->format("Y-m-d"),$pay_periods['week_two_start']->format("Y-m-d"), $pay_periods['week_two_end']->format("Y-m-d"), $temp->id);
-       $emp_arr[] = $temp;
+      $temp->setWeeks($pay_periods['week_one_start']->format("Y-m-d"), $pay_periods['week_one_end']->format("Y-m-d"),$pay_periods['week_two_start']->format("Y-m-d"), $pay_periods['week_two_end']->format("Y-m-d"), $temp->id);
+      $emp_arr[] = $temp;
       }
       
       $this->set('my_employees',$emp_arr); 
