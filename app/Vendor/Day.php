@@ -33,18 +33,20 @@ class Day
 		 {   
           
 		 	$temp = new Punch($punch['TimeClock']['id']);
+		 	
 		    $this->daily_seconds +=  $temp->total_time_seconds;
-		     
+
 		     if ( $temp->approved  == 0 )
 		     {
 		     	$this->unapproved++;
 		     }
 		    
 		     $daily_hours = MyEmployee::secondsToTime( $this->daily_seconds );
-
+ 
 		     $this->daily_hours = $daily_hours['h'].".".$daily_hours['m'] ;
 		     $this->punches[] = $temp;
 		 }
+		
 	}
 }
 ?>

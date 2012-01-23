@@ -76,12 +76,37 @@ class MyEmployee
     }
     public function getRemainingSick()
     {
-    	
+
+     //get used sick time
+     $sick_time = $this->sick_time_remaining;
+     $time_clock = new TimeClock();
+     $clocks = $time_clock->find('all', array('conditions' => array('Employee_id' => $this->id, 'work_code' => 'sick')));
+     $sick_used_seconds = 0;
+     foreach ( $clocks as $clock )
+     {
+       $punch = new Punch( $clock['TimeClock']['id'] );
+       $sick_used_seconds += $punch->total_time_seconds;
+     } 
+     $sick_time_remaining = $sick_time - $sick_used_seconds;
+     
+     $arr = MyEmployee::secondsToTime( $sick_time_remaining );
+     return $arr['h'].":".$arr['m'];    	
     	
     } 
     public function getRemainingVacation()
     {
-    	
+     $pto = $this->pto_remaining;
+     $time_clock = new TimeClock();
+     $clocks = $time_clock->find('all', array('conditions' => array('Employee_id' => $this->id, 'work_code' => 'vacation')));
+     $vacation_used_seconds = 0;
+     foreach ( $clocks as $clock )
+     {
+       $punch = new Punch( $clock['TimeClock']['id'] );
+       $vacation_used_seconds += $punch->total_time_seconds;
+     }
+     $vacation_remaining = $pto - $vacation_used_seconds;
+     $arr = MyEmployee::secondsToTime( $vacation_remaining );
+     return  $arr['h'].":".$arr['m'];  	
     	
     }    
     public static function secondsToTime($seconds)

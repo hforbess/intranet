@@ -20,15 +20,14 @@
         <?PHP echo $this->Html->link(  $emp->first_name . " ". $emp->last_name  , "/Employees/edit/". $emp->id ) ?> 
         </td>
        <td width="30%">
-         <?php echo $emp->unapproved_times['week_one'] + $emp->unapproved_times['week_two'];?>
+         <?php // echo $emp->unapproved_times['week_one'] + $emp->unapproved_times['week_two'];?>
         </td>
        <td width="30%">
-         <?php $arr =  $emp->secondsToTime ( $emp->total_hours['week_one'] +  $emp->total_hours['week_two'] )?>
-         <?php echo $arr["h"].".". $arr["m"]?>
+         <?php $emp->two_week_over_time?>
+
         </td>
        <td width="30%">
-         <?php $arr =  @$emp->secondsToTime ( @$emp->over_time['week_one'] +  @$emp->over_time['week_two'] )?>
-         <?php echo $arr["h"].".". $arr["m"]?>
+         <?php $emp->two_week_total?>
         </td>
      </tr>
 <?PHP endforeach ?>

@@ -44,7 +44,7 @@ class EmployeesController extends AppController {
    {
       $pay_periods = $this->getPayPeriods();
 
-   	  $employees = $this->Employee->find('all',array('conditions' => array('Employee.department_id' => $dept)));
+   	  $employees = $this->Employee->find('all',array('conditions' => array('Employee.department_id' => $dept ,'active' => 1)));
       foreach ( $employees as $emp)
       {
       // I made my own employee class. I hate those arrays.

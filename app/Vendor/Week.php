@@ -6,8 +6,9 @@ App::uses('Day','Vendor');
     var $total_seconds;
     var $total_time;
     var $over_time;
+    var $over_time_seconds;
 	var $my_days_arr = array();
-	var   $employee_id;
+	var  $employee_id;
 	var $uses = array('Department','Employee','TimeClock','DebugKit','Day' );
 	function __construct($start_date,$end_date, $employee_id)
 	{
@@ -19,12 +20,18 @@ App::uses('Day','Vendor');
         	$this->my_days_arr[$x] = new Day( new DateTime($my_days[$x]),$employee_id);
             $this->total_seconds += $this->my_days_arr[$x]->daily_seconds;
         }
+
+        $arr  = MyEmployee::secondsToTime($this->total_seconds);
+        $this->total_time = $arr['h'].":".$arr['m'];
+        $this->over_time = 0;
         if ( $this->total_seconds >  144000)
         {
+ 
         	$this->total_time = 40;
-        	$temp_over_time = $this->total_seconds - 144000;
-        	$arr = MyEmployee::secondsToTime($temp_over_time);
-        	$this->overtime = $arr['h'].":".$arr['m'];
+        	$this->over_time_seconds = $this->total_seconds - 144000;
+        	$arr = MyEmployee::secondsToTime($this->over_time_seconds);
+        	$this->over_time = $arr['h'].":".$arr['m'];
+        	
         }
 	}
 	
