@@ -25,4 +25,10 @@ class TimeClock extends AppModel {
 		)
 	);
 	*/
+	
+	
+    var $virtualFields = array(
+    'date_part' => 'DATE(punch_in)'
+    );
+	
 }

@@ -20,7 +20,7 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
-App::uses('Controller', 'Controller');
+App::uses('Controller', 'Controller','Model','User');
 App::import('Lib', 'DebugKit.Toolbar');
 
 /**
@@ -34,9 +34,26 @@ App::import('Lib', 'DebugKit.Toolbar');
  * @link http://book.cakephp.org/view/957/The-App-Controller
  */
 class AppController extends Controller {
-	var $components = array('DebugKit.Toolbar');
-	
-	
+
+var $helpers = array('Html', 'Form','Session');	
+
+    public $components = array(
+    
+        'Session','DebugKit.Toolbar',
+        'Auth' => array(
+            'loginRedirect' => array('controller' => 'Employees', 'action' => 'Edit'),
+            'logoutRedirect' => array('controller' => 'pages', 'action' => 'display', 'home'),
+            'authorize' => array( 'Controller' ),  
+        'fields'   => array('role'=> 'role'),
+    
+
+        )
+    );
+
+    public function beforeFilter() {
+
+ $this->Auth->allow('index', 'view', 'login');
+    }	
 //var $viewClass = 'Haml';
 //var $view = 'haml';
 }

@@ -10,6 +10,7 @@ class Day
 	var $employee_id;
 	var $daily_seconds;
 	var $unapproved;
+	var $work_code;
 	var $uses = array('Department','Employee','TimeClock','DebugKit','Punch' );
 	function __construct($my_date,$employee_id)
 	{
@@ -22,31 +23,36 @@ class Day
         $clock = new TimeClock();
 		$temp_punches = $clock->find('all',array('conditions' => 
 		                  array('employee_id' => $employee_id,
-		                  'punch_in >=' => $my_date->format('Y-m-d'),
-		                  'punch_in <=' => $my_date->modify('+1 day')->format('Y-m-d')
+		                  'DATE(punch_in) =' => $my_date->format('Y-m-d'),
+		                  'deleted' => 0,
 		                 )));
         
          $this->daily_hours = 0;
-         $this->daily_seconds = 0;
+         $this->daily_seconds;
          $this->unapproved = 0;
+
 		 foreach ($temp_punches as $punch)
 		 {   
-          
+
 		 	$temp = new Punch($punch['TimeClock']['id']);
-		 	
-		    $this->daily_seconds +=  $temp->total_time_seconds;
+	
+		    $this->daily_seconds += $temp->total_time_seconds ;
 
 		     if ( $temp->approved  == 0 )
 		     {
 		     	$this->unapproved++;
 		     }
-		    
+
 		     $daily_hours = MyEmployee::secondsToTime( $this->daily_seconds );
  
 		     $this->daily_hours = $daily_hours['h'].".".$daily_hours['m'] ;
 		     $this->punches[] = $temp;
+		    
 		 }
-		
+		     $daily_hours = MyEmployee::secondsToTime( $this->daily_seconds );
+ 
+		     $this->daily_hours = $daily_hours['h'].".".$daily_hours['m'] ;
+		//debug( $this->punches);
 	}
 }
 ?>

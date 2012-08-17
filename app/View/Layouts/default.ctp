@@ -3,11 +3,11 @@
  <head>
     <?PHP echo $this->Html->charset(); ?>
     <title>Temple Daily Telegram Intranet</title>
-    <?PHP echo $this->Html->css('jquery-ui-1.8.7.custom'); ?>
+    <?PHP echo $this->Html->css('css/south-street/jquery-ui-1.8.21.custom.css'); ?>
     <?PHP echo  $this->Html->css('main') ?>
     <?PHP echo  $this->Html->css('jquery.toastmessage.css') ?>
-    <?PHP echo $this->Html->script('jquery-1.4.4.min'); ?>
-    <?PHP echo $this->Html->script('jquery-ui-1.8.7.custom.min') ?>
+    <?PHP echo $this->Html->script('jquery-1.7.2.min.js'); ?>
+    <?PHP echo $this->Html->script('jquery-ui-1.8.21.custom.min.js') ?>
     <?PHP echo $this->Html->script('jquery.toastmessage.js') ?>
     <?PHP echo $this->Html->script('datetime_picker.js') ?>
     <?PHP echo $scripts_for_layout; ?>

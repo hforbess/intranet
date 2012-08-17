@@ -24,12 +24,20 @@ class MyEmployee
 	public $my_weeks;
 	public $two_week_total;
 	public $two_week_over_time;
-
-
+	public $two_week_sick_time;
+	public $unapproved_times;
+	public $two_week_work_codes;
+	public $two_week_holiday_time ;
+	public $two_week_vacation_time ;
+	public $total_all_time;
+	
     function __construct( $info_arr )
     {
+    	
+    	//these don't go in the cake employee class
     	$foreign_table_info_arr = array('user_group','department','unapproved_times','pay_periods',
-    	'total_hours','over_time','times','week_one','week_two','my_weeks','two_week_total','two_week_over_time');
+    	'total_hours','over_time','times','week_one','week_two','my_weeks','two_week_total','two_week_over_time',
+    	'two_week_sick_time','two_week_work_codes','two_week_holiday_time','two_week_vacation_time','total_all_time');
     	foreach( $this as $key => $value)
     	{
     		if ( in_array($key, $foreign_table_info_arr))
@@ -41,22 +49,28 @@ class MyEmployee
     		    $this->$key = $info_arr['Employee'][$key];
             }
     	}
-    	
+    	//debug($info_arr);
     	$this->user_group = $info_arr['Group']['group_name'];
     	$this->department = $info_arr['department']['department_name'];
-  
+    	$time_clock = new TimeClock();
+        $pay_periods = EmployeesController::getPayPeriods();
+        
+        $conditions = array("employee_id" => $info_arr['Employee']['id'], "DATE(punch_in )  BETWEEN '". $pay_periods['week_one_start']->format("Y-m-d").
+         "' AND '".$pay_periods['week_one_end']->format("Y-m-d")."'", 'approved' => 0,'deleted' => 0 );
+    	$this->unapproved_times['week_one'] = $time_clock->find('count', array( 'conditions' => $conditions));
+        $conditions = array("employee_id" => $info_arr['Employee']['id'], "DATE( punch_in )  BETWEEN '". $pay_periods['week_two_start']->format("Y-m-d").
+         "' AND '".$pay_periods['week_two_end']->format("Y-m-d")."'", 'approved' => 0, 'deleted' => 0 );
+    	$this->unapproved_times['week_two'] = $time_clock->find('count', array( 'conditions' => $conditions));  
     }
     
 
     public function setWeeks($week_one_start,$week_one_end,$week_two_start,$week_two_end)
     {
-       
         for($x = 0;$x<=1; $x++ )
         {   
            if ($x == 0 )
            {
            	$this->week_one = new Week($week_one_start,$week_one_end, $this->id );
-           	
            }
            else 
            {
@@ -65,14 +79,19 @@ class MyEmployee
            }
         }//endfor
        $this->my_weeks = array ( $this->week_one, $this->week_two );
-       
-       $arr = MyEmployee::secondsToTime( $this->week_one->total_seconds + $this->week_two->total_seconds );
-       $this->two_week_total = $arr['h'].":".$arr['m'];
-       $arr = MyEmployee::secondsToTime( $this->week_one->total_seconds + $this->week_two->total_seconds );
+       $arr = MyEmployee::secondsToTime( $this->week_one->regular_week_seconds + $this->week_two->regular_week_seconds);
        $this->two_week_total = $arr['h'].":".$arr['m'];
        $arr = MyEmployee::secondsToTime( $this->week_one->over_time_seconds + $this->week_two->over_time_seconds );
        $this->two_week_over_time = $arr['h'].":".$arr['m'];
-         
+       $arr = MyEmployee::secondsToTime( $this->week_one->sick_week_seconds + $this->week_two->sick_week_seconds);
+       $this->two_week_total_sick_time = $arr['h'].":".$arr['m'];
+       $arr = MyEmployee::secondsToTime( $this->week_one->holiday_week_seconds + $this->week_two->holiday_week_seconds);
+       $this->two_week_holiday_time = $arr['h'].":".$arr['m'];
+       $arr = MyEmployee::secondsToTime( $this->week_one->vacation_week_seconds + $this->week_two->vacation_week_seconds);
+       $this->two_week_vacation_time = $arr['h'].":".$arr['m'];
+       $arr = MyEmployee::secondsToTime( $this->week_one->total_all_seconds + $this->week_two->total_all_seconds);
+       $this->total_all_time = $arr['h'].":".$arr['m'];
+       
     }
     public function getRemainingSick()
     {
